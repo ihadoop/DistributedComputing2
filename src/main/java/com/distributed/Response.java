@@ -122,10 +122,6 @@ private static final long serialVersionUID = 0L;
   public static final int PROCESSEDWORDS_FIELD_NUMBER = 1;
   private com.google.protobuf.LazyStringList processedWords_;
   /**
-   * <pre>
-   * List of processed words
-   * </pre>
-   *
    * <code>repeated string processedWords = 1;</code>
    * @return A list containing the processedWords.
    */
@@ -134,10 +130,6 @@ private static final long serialVersionUID = 0L;
     return processedWords_;
   }
   /**
-   * <pre>
-   * List of processed words
-   * </pre>
-   *
    * <code>repeated string processedWords = 1;</code>
    * @return The count of processedWords.
    */
@@ -145,10 +137,6 @@ private static final long serialVersionUID = 0L;
     return processedWords_.size();
   }
   /**
-   * <pre>
-   * List of processed words
-   * </pre>
-   *
    * <code>repeated string processedWords = 1;</code>
    * @param index The index of the element to return.
    * @return The processedWords at the given index.
@@ -157,10 +145,6 @@ private static final long serialVersionUID = 0L;
     return processedWords_.get(index);
   }
   /**
-   * <pre>
-   * List of processed words
-   * </pre>
-   *
    * <code>repeated string processedWords = 1;</code>
    * @param index The index of the value to return.
    * @return The bytes of the processedWords at the given index.
@@ -173,10 +157,6 @@ private static final long serialVersionUID = 0L;
   public static final int VECTORCLOCK_FIELD_NUMBER = 2;
   private com.google.protobuf.Internal.IntList vectorClock_;
   /**
-   * <pre>
-   * Updated vector clock
-   * </pre>
-   *
    * <code>repeated int32 vectorClock = 2;</code>
    * @return A list containing the vectorClock.
    */
@@ -185,10 +165,6 @@ private static final long serialVersionUID = 0L;
     return vectorClock_;
   }
   /**
-   * <pre>
-   * Updated vector clock
-   * </pre>
-   *
    * <code>repeated int32 vectorClock = 2;</code>
    * @return The count of vectorClock.
    */
@@ -196,10 +172,6 @@ private static final long serialVersionUID = 0L;
     return vectorClock_.size();
   }
   /**
-   * <pre>
-   * Updated vector clock
-   * </pre>
-   *
    * <code>repeated int32 vectorClock = 2;</code>
    * @param index The index of the element to return.
    * @return The vectorClock at the given index.
@@ -583,10 +555,6 @@ private static final long serialVersionUID = 0L;
        }
     }
     /**
-     * <pre>
-     * List of processed words
-     * </pre>
-     *
      * <code>repeated string processedWords = 1;</code>
      * @return A list containing the processedWords.
      */
@@ -595,10 +563,6 @@ private static final long serialVersionUID = 0L;
       return processedWords_.getUnmodifiableView();
     }
     /**
-     * <pre>
-     * List of processed words
-     * </pre>
-     *
      * <code>repeated string processedWords = 1;</code>
      * @return The count of processedWords.
      */
@@ -606,10 +570,6 @@ private static final long serialVersionUID = 0L;
       return processedWords_.size();
     }
     /**
-     * <pre>
-     * List of processed words
-     * </pre>
-     *
      * <code>repeated string processedWords = 1;</code>
      * @param index The index of the element to return.
      * @return The processedWords at the given index.
@@ -618,10 +578,6 @@ private static final long serialVersionUID = 0L;
       return processedWords_.get(index);
     }
     /**
-     * <pre>
-     * List of processed words
-     * </pre>
-     *
      * <code>repeated string processedWords = 1;</code>
      * @param index The index of the value to return.
      * @return The bytes of the processedWords at the given index.
@@ -631,10 +587,6 @@ private static final long serialVersionUID = 0L;
       return processedWords_.getByteString(index);
     }
     /**
-     * <pre>
-     * List of processed words
-     * </pre>
-     *
      * <code>repeated string processedWords = 1;</code>
      * @param index The index to set the value at.
      * @param value The processedWords to set.
@@ -651,10 +603,6 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <pre>
-     * List of processed words
-     * </pre>
-     *
      * <code>repeated string processedWords = 1;</code>
      * @param value The processedWords to add.
      * @return This builder for chaining.
@@ -670,10 +618,6 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <pre>
-     * List of processed words
-     * </pre>
-     *
      * <code>repeated string processedWords = 1;</code>
      * @param values The processedWords to add.
      * @return This builder for chaining.
@@ -687,10 +631,6 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <pre>
-     * List of processed words
-     * </pre>
-     *
      * <code>repeated string processedWords = 1;</code>
      * @return This builder for chaining.
      */
@@ -701,10 +641,6 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <pre>
-     * List of processed words
-     * </pre>
-     *
      * <code>repeated string processedWords = 1;</code>
      * @param value The bytes of the processedWords to add.
      * @return This builder for chaining.
@@ -729,10 +665,6 @@ private static final long serialVersionUID = 0L;
        }
     }
     /**
-     * <pre>
-     * Updated vector clock
-     * </pre>
-     *
      * <code>repeated int32 vectorClock = 2;</code>
      * @return A list containing the vectorClock.
      */
@@ -742,10 +674,6 @@ private static final long serialVersionUID = 0L;
                java.util.Collections.unmodifiableList(vectorClock_) : vectorClock_;
     }
     /**
-     * <pre>
-     * Updated vector clock
-     * </pre>
-     *
      * <code>repeated int32 vectorClock = 2;</code>
      * @return The count of vectorClock.
      */
@@ -753,10 +681,6 @@ private static final long serialVersionUID = 0L;
       return vectorClock_.size();
     }
     /**
-     * <pre>
-     * Updated vector clock
-     * </pre>
-     *
      * <code>repeated int32 vectorClock = 2;</code>
      * @param index The index of the element to return.
      * @return The vectorClock at the given index.
@@ -765,10 +689,6 @@ private static final long serialVersionUID = 0L;
       return vectorClock_.getInt(index);
     }
     /**
-     * <pre>
-     * Updated vector clock
-     * </pre>
-     *
      * <code>repeated int32 vectorClock = 2;</code>
      * @param index The index to set the value at.
      * @param value The vectorClock to set.
@@ -782,10 +702,6 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <pre>
-     * Updated vector clock
-     * </pre>
-     *
      * <code>repeated int32 vectorClock = 2;</code>
      * @param value The vectorClock to add.
      * @return This builder for chaining.
@@ -797,10 +713,6 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <pre>
-     * Updated vector clock
-     * </pre>
-     *
      * <code>repeated int32 vectorClock = 2;</code>
      * @param values The vectorClock to add.
      * @return This builder for chaining.
@@ -814,10 +726,6 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <pre>
-     * Updated vector clock
-     * </pre>
-     *
      * <code>repeated int32 vectorClock = 2;</code>
      * @return This builder for chaining.
      */

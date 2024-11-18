@@ -8,39 +8,23 @@ public interface MessageOrBuilder extends
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <pre>
-   * List of words to be processed
-   * </pre>
-   *
    * <code>repeated string words = 1;</code>
    * @return A list containing the words.
    */
   java.util.List<java.lang.String>
       getWordsList();
   /**
-   * <pre>
-   * List of words to be processed
-   * </pre>
-   *
    * <code>repeated string words = 1;</code>
    * @return The count of words.
    */
   int getWordsCount();
   /**
-   * <pre>
-   * List of words to be processed
-   * </pre>
-   *
    * <code>repeated string words = 1;</code>
    * @param index The index of the element to return.
    * @return The words at the given index.
    */
   java.lang.String getWords(int index);
   /**
-   * <pre>
-   * List of words to be processed
-   * </pre>
-   *
    * <code>repeated string words = 1;</code>
    * @param index The index of the value to return.
    * @return The bytes of the words at the given index.
@@ -49,38 +33,22 @@ public interface MessageOrBuilder extends
       getWordsBytes(int index);
 
   /**
-   * <pre>
-   * Sender's process ID
-   * </pre>
-   *
    * <code>int32 senderId = 2;</code>
    * @return The senderId.
    */
   int getSenderId();
 
   /**
-   * <pre>
-   * Sender's vector clock
-   * </pre>
-   *
    * <code>repeated int32 vectorClock = 3;</code>
    * @return A list containing the vectorClock.
    */
   java.util.List<java.lang.Integer> getVectorClockList();
   /**
-   * <pre>
-   * Sender's vector clock
-   * </pre>
-   *
    * <code>repeated int32 vectorClock = 3;</code>
    * @return The count of vectorClock.
    */
   int getVectorClockCount();
   /**
-   * <pre>
-   * Sender's vector clock
-   * </pre>
-   *
    * <code>repeated int32 vectorClock = 3;</code>
    * @param index The index of the element to return.
    * @return The vectorClock at the given index.

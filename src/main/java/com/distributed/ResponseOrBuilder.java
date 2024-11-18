@@ -8,39 +8,23 @@ public interface ResponseOrBuilder extends
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <pre>
-   * List of processed words
-   * </pre>
-   *
    * <code>repeated string processedWords = 1;</code>
    * @return A list containing the processedWords.
    */
   java.util.List<java.lang.String>
       getProcessedWordsList();
   /**
-   * <pre>
-   * List of processed words
-   * </pre>
-   *
    * <code>repeated string processedWords = 1;</code>
    * @return The count of processedWords.
    */
   int getProcessedWordsCount();
   /**
-   * <pre>
-   * List of processed words
-   * </pre>
-   *
    * <code>repeated string processedWords = 1;</code>
    * @param index The index of the element to return.
    * @return The processedWords at the given index.
    */
   java.lang.String getProcessedWords(int index);
   /**
-   * <pre>
-   * List of processed words
-   * </pre>
-   *
    * <code>repeated string processedWords = 1;</code>
    * @param index The index of the value to return.
    * @return The bytes of the processedWords at the given index.
@@ -49,28 +33,16 @@ public interface ResponseOrBuilder extends
       getProcessedWordsBytes(int index);
 
   /**
-   * <pre>
-   * Updated vector clock
-   * </pre>
-   *
    * <code>repeated int32 vectorClock = 2;</code>
    * @return A list containing the vectorClock.
    */
   java.util.List<java.lang.Integer> getVectorClockList();
   /**
-   * <pre>
-   * Updated vector clock
-   * </pre>
-   *
    * <code>repeated int32 vectorClock = 2;</code>
    * @return The count of vectorClock.
    */
   int getVectorClockCount();
   /**
-   * <pre>
-   * Updated vector clock
-   * </pre>
-   *
    * <code>repeated int32 vectorClock = 2;</code>
    * @param index The index of the element to return.
    * @return The vectorClock at the given index.

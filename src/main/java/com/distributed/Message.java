@@ -127,10 +127,6 @@ private static final long serialVersionUID = 0L;
   public static final int WORDS_FIELD_NUMBER = 1;
   private com.google.protobuf.LazyStringList words_;
   /**
-   * <pre>
-   * List of words to be processed
-   * </pre>
-   *
    * <code>repeated string words = 1;</code>
    * @return A list containing the words.
    */
@@ -139,10 +135,6 @@ private static final long serialVersionUID = 0L;
     return words_;
   }
   /**
-   * <pre>
-   * List of words to be processed
-   * </pre>
-   *
    * <code>repeated string words = 1;</code>
    * @return The count of words.
    */
@@ -150,10 +142,6 @@ private static final long serialVersionUID = 0L;
     return words_.size();
   }
   /**
-   * <pre>
-   * List of words to be processed
-   * </pre>
-   *
    * <code>repeated string words = 1;</code>
    * @param index The index of the element to return.
    * @return The words at the given index.
@@ -162,10 +150,6 @@ private static final long serialVersionUID = 0L;
     return words_.get(index);
   }
   /**
-   * <pre>
-   * List of words to be processed
-   * </pre>
-   *
    * <code>repeated string words = 1;</code>
    * @param index The index of the value to return.
    * @return The bytes of the words at the given index.
@@ -178,10 +162,6 @@ private static final long serialVersionUID = 0L;
   public static final int SENDERID_FIELD_NUMBER = 2;
   private int senderId_;
   /**
-   * <pre>
-   * Sender's process ID
-   * </pre>
-   *
    * <code>int32 senderId = 2;</code>
    * @return The senderId.
    */
@@ -192,10 +172,6 @@ private static final long serialVersionUID = 0L;
   public static final int VECTORCLOCK_FIELD_NUMBER = 3;
   private com.google.protobuf.Internal.IntList vectorClock_;
   /**
-   * <pre>
-   * Sender's vector clock
-   * </pre>
-   *
    * <code>repeated int32 vectorClock = 3;</code>
    * @return A list containing the vectorClock.
    */
@@ -204,10 +180,6 @@ private static final long serialVersionUID = 0L;
     return vectorClock_;
   }
   /**
-   * <pre>
-   * Sender's vector clock
-   * </pre>
-   *
    * <code>repeated int32 vectorClock = 3;</code>
    * @return The count of vectorClock.
    */
@@ -215,10 +187,6 @@ private static final long serialVersionUID = 0L;
     return vectorClock_.size();
   }
   /**
-   * <pre>
-   * Sender's vector clock
-   * </pre>
-   *
    * <code>repeated int32 vectorClock = 3;</code>
    * @param index The index of the element to return.
    * @return The vectorClock at the given index.
@@ -619,10 +587,6 @@ private static final long serialVersionUID = 0L;
        }
     }
     /**
-     * <pre>
-     * List of words to be processed
-     * </pre>
-     *
      * <code>repeated string words = 1;</code>
      * @return A list containing the words.
      */
@@ -631,10 +595,6 @@ private static final long serialVersionUID = 0L;
       return words_.getUnmodifiableView();
     }
     /**
-     * <pre>
-     * List of words to be processed
-     * </pre>
-     *
      * <code>repeated string words = 1;</code>
      * @return The count of words.
      */
@@ -642,10 +602,6 @@ private static final long serialVersionUID = 0L;
       return words_.size();
     }
     /**
-     * <pre>
-     * List of words to be processed
-     * </pre>
-     *
      * <code>repeated string words = 1;</code>
      * @param index The index of the element to return.
      * @return The words at the given index.
@@ -654,10 +610,6 @@ private static final long serialVersionUID = 0L;
       return words_.get(index);
     }
     /**
-     * <pre>
-     * List of words to be processed
-     * </pre>
-     *
      * <code>repeated string words = 1;</code>
      * @param index The index of the value to return.
      * @return The bytes of the words at the given index.
@@ -667,10 +619,6 @@ private static final long serialVersionUID = 0L;
       return words_.getByteString(index);
     }
     /**
-     * <pre>
-     * List of words to be processed
-     * </pre>
-     *
      * <code>repeated string words = 1;</code>
      * @param index The index to set the value at.
      * @param value The words to set.
@@ -687,10 +635,6 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <pre>
-     * List of words to be processed
-     * </pre>
-     *
      * <code>repeated string words = 1;</code>
      * @param value The words to add.
      * @return This builder for chaining.
@@ -706,10 +650,6 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <pre>
-     * List of words to be processed
-     * </pre>
-     *
      * <code>repeated string words = 1;</code>
      * @param values The words to add.
      * @return This builder for chaining.
@@ -723,10 +663,6 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <pre>
-     * List of words to be processed
-     * </pre>
-     *
      * <code>repeated string words = 1;</code>
      * @return This builder for chaining.
      */
@@ -737,10 +673,6 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <pre>
-     * List of words to be processed
-     * </pre>
-     *
      * <code>repeated string words = 1;</code>
      * @param value The bytes of the words to add.
      * @return This builder for chaining.
@@ -759,10 +691,6 @@ private static final long serialVersionUID = 0L;
 
     private int senderId_ ;
     /**
-     * <pre>
-     * Sender's process ID
-     * </pre>
-     *
      * <code>int32 senderId = 2;</code>
      * @return The senderId.
      */
@@ -770,10 +698,6 @@ private static final long serialVersionUID = 0L;
       return senderId_;
     }
     /**
-     * <pre>
-     * Sender's process ID
-     * </pre>
-     *
      * <code>int32 senderId = 2;</code>
      * @param value The senderId to set.
      * @return This builder for chaining.
@@ -785,10 +709,6 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <pre>
-     * Sender's process ID
-     * </pre>
-     *
      * <code>int32 senderId = 2;</code>
      * @return This builder for chaining.
      */
@@ -807,10 +727,6 @@ private static final long serialVersionUID = 0L;
        }
     }
     /**
-     * <pre>
-     * Sender's vector clock
-     * </pre>
-     *
      * <code>repeated int32 vectorClock = 3;</code>
      * @return A list containing the vectorClock.
      */
@@ -820,10 +736,6 @@ private static final long serialVersionUID = 0L;
                java.util.Collections.unmodifiableList(vectorClock_) : vectorClock_;
     }
     /**
-     * <pre>
-     * Sender's vector clock
-     * </pre>
-     *
      * <code>repeated int32 vectorClock = 3;</code>
      * @return The count of vectorClock.
      */
@@ -831,10 +743,6 @@ private static final long serialVersionUID = 0L;
       return vectorClock_.size();
     }
     /**
-     * <pre>
-     * Sender's vector clock
-     * </pre>
-     *
      * <code>repeated int32 vectorClock = 3;</code>
      * @param index The index of the element to return.
      * @return The vectorClock at the given index.
@@ -843,10 +751,6 @@ private static final long serialVersionUID = 0L;
       return vectorClock_.getInt(index);
     }
     /**
-     * <pre>
-     * Sender's vector clock
-     * </pre>
-     *
      * <code>repeated int32 vectorClock = 3;</code>
      * @param index The index to set the value at.
      * @param value The vectorClock to set.
@@ -860,10 +764,6 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <pre>
-     * Sender's vector clock
-     * </pre>
-     *
      * <code>repeated int32 vectorClock = 3;</code>
      * @param value The vectorClock to add.
      * @return This builder for chaining.
@@ -875,10 +775,6 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <pre>
-     * Sender's vector clock
-     * </pre>
-     *
      * <code>repeated int32 vectorClock = 3;</code>
      * @param values The vectorClock to add.
      * @return This builder for chaining.
@@ -892,10 +788,6 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <pre>
-     * Sender's vector clock
-     * </pre>
-     *
      * <code>repeated int32 vectorClock = 3;</code>
      * @return This builder for chaining.
      */
