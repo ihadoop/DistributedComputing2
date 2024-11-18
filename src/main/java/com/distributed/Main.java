@@ -52,9 +52,7 @@ public class Main {
 
         // Step 5: Wait for all workers to respond
         executor.shutdown();
-        if (!executor.awaitTermination(20, TimeUnit.SECONDS)) {
-            System.err.println("Timeout: Not all workers responded.");
-        }
+        executor.awaitTermination(15, TimeUnit.SECONDS);
 
         // Step 6: Collect and print the processed paragraph
         List<String> collectedWords = new ArrayList<>();
