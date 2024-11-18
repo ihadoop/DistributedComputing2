@@ -1,14 +1,14 @@
 package com.distributed;
-
 import java.io.*;
 import java.net.*;
 import java.util.*;
-
+import java.util.concurrent.*;
 
 public class Main {
     private static final int NUM_PROCESSES = 5;
-    private static final int BASE_PORT = 5000;
+    private static final int BASE_PORT = 10000;
     private static final int[] vectorClock = new int[NUM_PROCESSES];
+    private static final Map<Integer, List<String>> results = new ConcurrentHashMap<>();
 
     public static void main(String[] args) throws IOException, InterruptedException {
         Scanner scanner = new Scanner(System.in);
@@ -30,53 +30,64 @@ public class Main {
             incrementClock(0); // Update main process clock
         }
 
-        // Step 3: Send words to workers
+        // Step 3: Start threads to listen for worker responses
+        ExecutorService executor = Executors.newFixedThreadPool(NUM_PROCESSES);
+        for (int i = 0; i < NUM_PROCESSES; i++) {
+            int workerId = i;
+            executor.submit(() -> {
+                try {
+                    listenForWorkerResponse(workerId);
+                } catch (IOException e) {
+                    System.err.println("Error listening for Worker " + workerId + ": " + e.getMessage());
+                }
+            });
+        }
+
+        // Step 4: Send words to workers
         for (int i = 0; i < NUM_PROCESSES; i++) {
             if (!wordDistribution.get(i).isEmpty()) {
                 sendMessageToWorker(i, wordDistribution.get(i));
             }
         }
 
-        // Step 4: Wait for workers to process
-        System.out.println("Waiting for workers to process...");
-        Thread.sleep(15000);
-
-        // Step 5: Collect responses from workers
-        List<String> collectedWords = new ArrayList<>();
-        for (int i = 0; i < NUM_PROCESSES; i++) {
-            collectedWords.addAll(receiveResponseFromWorker(i));
+        // Step 5: Wait for all workers to respond
+        executor.shutdown();
+        if (!executor.awaitTermination(20, TimeUnit.SECONDS)) {
+            System.err.println("Timeout: Not all workers responded.");
         }
 
-        // Step 6: Print the reconstructed paragraph
+        // Step 6: Collect and print the processed paragraph
+        List<String> collectedWords = new ArrayList<>();
+        for (List<String> workerResult : results.values()) {
+            collectedWords.addAll(workerResult);
+        }
         System.out.println("Processed Paragraph: " + String.join(" ", collectedWords));
     }
 
     private static void sendMessageToWorker(int workerId, List<String> words) throws IOException {
         int port = BASE_PORT + workerId;
-        Socket socket = new Socket("localhost", port);
-        try (OutputStream out = socket.getOutputStream()) {
-            // Create Message using ProtoBuf
+        try (Socket socket = new Socket("localhost", port);
+             OutputStream out = socket.getOutputStream()) {
+
             Message message = Message.newBuilder()
                     .addAllWords(words)
-                    .setSenderId(0) // Main process ID
+                    .setSenderId(0)
                     .addAllVectorClock(toList(vectorClock))
                     .build();
 
-            // Serialize and send the message
             message.writeTo(out);
         }
     }
 
-    private static List<String> receiveResponseFromWorker(int workerId) throws IOException {
-        int port = BASE_PORT + workerId + 1000; // Return port
-        ServerSocket serverSocket = new ServerSocket(port);
-        try (Socket socket = serverSocket.accept();
+    private static void listenForWorkerResponse(int workerId) throws IOException {
+        int port = BASE_PORT + workerId + 1000;
+        try (ServerSocket serverSocket = new ServerSocket(port);
+             Socket socket = serverSocket.accept();
              InputStream in = socket.getInputStream()) {
 
-            // Deserialize the response using ProtoBuf
             Response response = Response.parseFrom(in);
             updateClock(response.getVectorClockList());
-            return response.getProcessedWordsList();
+            results.put(workerId, response.getProcessedWordsList());
         }
     }
 

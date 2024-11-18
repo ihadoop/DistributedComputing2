@@ -7,7 +7,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 public class Worker {
     private static final int WORKER_ID = 0; // Set unique ID for each worker
-    private static final int BASE_PORT = 5000;
+    private static final int BASE_PORT = 10000;
     private static final int[] vectorClock = new int[5];
 
     public static void main(String[] args) throws IOException {
@@ -55,6 +55,7 @@ public class Worker {
     }
 
     private static void updateClock(List<Integer> receivedClock) {
+        System.out.println(receivedClock.size());
         for (int i = 0; i < vectorClock.length; i++) {
             vectorClock[i] = Math.max(vectorClock[i], receivedClock.get(i));
         }
