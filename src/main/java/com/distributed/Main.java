@@ -7,7 +7,7 @@ import java.util.concurrent.*;
 
 public class Main {
     private static final int BASE_PORT = 10000;
-    private static final int NUM_WORKERS = 3; // 修改为支持多个 Worker
+    private static final int NUM_WORKERS = 5; //
     private final int[] vectorClock = new int[NUM_WORKERS + 1];
     private final ExecutorService executor = Executors.newFixedThreadPool(NUM_WORKERS);
 
@@ -20,7 +20,7 @@ public class Main {
             System.out.println("Enter a paragraph:");
             String paragraph = scanner.nextLine();
 
-            // 切分段落为单词
+            // Divide paragraphs into words
             List<Word> words = new ArrayList<>();
             String[] wordArray = paragraph.split(" ");
             for (int i = 0; i < wordArray.length; i++) {
@@ -30,7 +30,7 @@ public class Main {
                         .build());
             }
 
-            // 随机分配单词到 Workers
+            // Randomly assign words to Workers
             Map<Integer, List<Word>> tasks = new HashMap<>();
             for (int i = 0; i < NUM_WORKERS; i++) {
                 tasks.put(i, new ArrayList<>());
@@ -41,7 +41,7 @@ public class Main {
                 tasks.get(workerId).add(word);
             }
 
-            // 用于存储结果的容器
+            // A container for storing results
             ConcurrentMap<Integer, List<Word>> collectedResults = new ConcurrentHashMap<>();
 
             // 向每个 Worker 发送任务并监听其返回
@@ -49,23 +49,24 @@ public class Main {
                 List<Word> taskWords = tasks.get(workerId);
                 sendMessageToWorker(workerId, taskWords);
 
-                // 启动监听线程等待 Worker 返回结果
+                // Start the listening thread and wait for the Worker to return the result
                 int finalWorkerId = workerId;
                 executor.submit(() -> listenForWorkerResponse(finalWorkerId, collectedResults));
             }
 
-            // 关闭线程池并等待所有任务完成
+            // Close the thread pool and wait for all tasks to complete
             executor.shutdown();
-            executor.awaitTermination(30, TimeUnit.SECONDS);
+            executor.awaitTermination(15, TimeUnit.SECONDS);
 
-            // 合并并排序结果
+
+            // Merge and sort the results
             List<Word> finalResults = new ArrayList<>();
             for (List<Word> workerResults : collectedResults.values()) {
                 finalResults.addAll(workerResults);
             }
             finalResults.sort(Comparator.comparingInt(Word::getOriginalIndex));
 
-            // 输出最终结果
+            // Output final result
             StringBuilder result = new StringBuilder();
             for (Word word : finalResults) {
                 result.append(word.getText()).append(" ");
@@ -85,7 +86,7 @@ public class Main {
                     .build();
             message.writeTo(out);
         }
-        incrementClock(0); // 主进程更新自己的 Vector Clock
+        incrementClock(0); // The main process updates its own Vector Clock
     }
 
     private void listenForWorkerResponse(int workerId, ConcurrentMap<Integer, List<Word>> results) {
@@ -95,10 +96,10 @@ public class Main {
 
             Response response = Response.parseFrom(in);
 
-            // 更新主进程的 Vector Clock
+            // update main process Vector Clock
             updateClock(response.getVectorClockList());
 
-            // 存储 Worker 返回的结果
+            // store Worker response data
             results.put(workerId, response.getProcessedWordsList());
         } catch (IOException e) {
             e.printStackTrace();

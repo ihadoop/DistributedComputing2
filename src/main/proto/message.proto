@@ -5,16 +5,16 @@ option java_package = "com.distributed";
 
 
 message Word {
-  string text = 1;          // 单词的内容
-  int32 originalIndex = 2;  // 单词在原段落中的位置
+  string text = 1;
+  int32 originalIndex = 2;
 }
 
 message Message {
-  repeated Word words = 1;        // 分配给 Worker 的单词
-  repeated int32 vectorClock = 2; // 主进程的 Vector Clock
+  repeated Word words = 1;
+  repeated int32 vectorClock = 2;
 }
 
 message Response {
-  repeated Word processedWords = 1; // Worker 处理后的单词
-  repeated int32 vectorClock = 2;   // Worker 的 Vector Clock
+  repeated Word processedWords = 1;
+  repeated int32 vectorClock = 2;
 }

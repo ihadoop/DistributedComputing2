@@ -20,19 +20,19 @@ public class Worker {
                 try (Socket socket = serverSocket.accept();
                      InputStream in = socket.getInputStream()) {
 
-                    // 接收主进程的任务
+                    // Receives tasks from the main process
                     Message message = Message.parseFrom(in);
 
-                    // 更新 Vector Clock
+                    // update Vector Clock
                     updateClock(message.getVectorClockList());
 
-                    // 处理任务
+                    // handle task
                     List<Word> processedWords = processWords(message.getWordsList());
 
-                    // 增加 Vector Clock
+                    // add Vector Clock
                     incrementClock(workerId);
 
-                    // 返回处理结果
+                    // handle response data
                     try (Socket responseSocket = new Socket("localhost", 10000 + workerId + 1000);
                          OutputStream out = responseSocket.getOutputStream()) {
                         Response response = Response.newBuilder()
@@ -50,7 +50,7 @@ public class Worker {
         List<Word> processedWords = new ArrayList<>();
         for (Word word : words) {
             processedWords.add(Word.newBuilder()
-                    .setText(word.getText().toUpperCase()) // 转为大写
+                    .setText(word.getText().toUpperCase()) // change to upper case
                     .setOriginalIndex(word.getOriginalIndex())
                     .build());
         }
@@ -76,9 +76,9 @@ public class Worker {
     }
 
     public static void main(String[] args) {
-        int numProcess = 3;
-        int workerId = 2;
-        Worker worker = new Worker(workerId, numProcess); // 默认支持 3 Worker
+        int numProcess = 5;
+        int workerId = 4;
+        Worker worker = new Worker(workerId, numProcess); //
         try {
             worker.start();
         } catch (IOException e) {
