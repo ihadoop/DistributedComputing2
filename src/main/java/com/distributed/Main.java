@@ -1,105 +1,121 @@
 package com.distributed;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
 
 public class Main {
-    private static final int NUM_PROCESSES = 5;
     private static final int BASE_PORT = 10000;
-    private static final int[] vectorClock = new int[NUM_PROCESSES];
-    private static final Map<Integer, List<String>> results = new ConcurrentHashMap<>();
+    private static final int NUM_WORKERS = 3; // 修改为支持多个 Worker
+    private final int[] vectorClock = new int[NUM_WORKERS + 1];
+    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_WORKERS);
 
-    public static void main(String[] args) throws IOException, InterruptedException {
-        Scanner scanner = new Scanner(System.in);
-
-        // Step 1: Get input paragraph from the user
-        System.out.println("Enter a paragraph:");
-        String paragraph = scanner.nextLine();
-        String[] words = paragraph.split(" ");
-
-        // Step 2: Distribute words to workers randomly
-        Map<Integer, List<String>> wordDistribution = new HashMap<>();
-        Random random = new Random();
-        for (int i = 0; i < NUM_PROCESSES; i++) {
-            wordDistribution.put(i, new ArrayList<>());
-        }
-        for (String word : words) {
-            int workerId = random.nextInt(NUM_PROCESSES);
-            wordDistribution.get(workerId).add(word);
-            incrementClock(0); // Update main process clock
-        }
-
-        // Step 3: Start threads to listen for worker responses
-        ExecutorService executor = Executors.newFixedThreadPool(NUM_PROCESSES);
-        for (int i = 0; i < NUM_PROCESSES; i++) {
-            int workerId = i;
-            executor.submit(() -> {
-                try {
-                    listenForWorkerResponse(workerId);
-                } catch (IOException e) {
-                    System.err.println("Error listening for Worker " + workerId + ": " + e.getMessage());
-                }
-            });
-        }
-
-        // Step 4: Send words to workers
-        for (int i = 0; i < NUM_PROCESSES; i++) {
-            if (!wordDistribution.get(i).isEmpty()) {
-                sendMessageToWorker(i, wordDistribution.get(i));
-            }
-        }
-
-        // Step 5: Wait for all workers to respond
-        executor.shutdown();
-        executor.awaitTermination(15, TimeUnit.SECONDS);
-
-        // Step 6: Collect and print the processed paragraph
-        List<String> collectedWords = new ArrayList<>();
-        for (List<String> workerResult : results.values()) {
-            collectedWords.addAll(workerResult);
-        }
-        System.out.println("Processed Paragraph: " + String.join(" ", collectedWords));
+    public static void main(String[] args) {
+        new Main().start();
     }
 
-    private static void sendMessageToWorker(int workerId, List<String> words) throws IOException {
-        int port = BASE_PORT + workerId;
-        try (Socket socket = new Socket("localhost", port);
-             OutputStream out = socket.getOutputStream()) {
+    public void start() {
+        try (Scanner scanner = new Scanner(System.in)) {
+            System.out.println("Enter a paragraph:");
+            String paragraph = scanner.nextLine();
 
+            // 切分段落为单词
+            List<Word> words = new ArrayList<>();
+            String[] wordArray = paragraph.split(" ");
+            for (int i = 0; i < wordArray.length; i++) {
+                words.add(Word.newBuilder()
+                        .setText(wordArray[i])
+                        .setOriginalIndex(i)
+                        .build());
+            }
+
+            // 随机分配单词到 Workers
+            Map<Integer, List<Word>> tasks = new HashMap<>();
+            for (int i = 0; i < NUM_WORKERS; i++) {
+                tasks.put(i, new ArrayList<>());
+            }
+            Random random = new Random();
+            for (Word word : words) {
+                int workerId = random.nextInt(NUM_WORKERS);
+                tasks.get(workerId).add(word);
+            }
+
+            // 用于存储结果的容器
+            ConcurrentMap<Integer, List<Word>> collectedResults = new ConcurrentHashMap<>();
+
+            // 向每个 Worker 发送任务并监听其返回
+            for (int workerId = 0; workerId < NUM_WORKERS; workerId++) {
+                List<Word> taskWords = tasks.get(workerId);
+                sendMessageToWorker(workerId, taskWords);
+
+                // 启动监听线程等待 Worker 返回结果
+                int finalWorkerId = workerId;
+                executor.submit(() -> listenForWorkerResponse(finalWorkerId, collectedResults));
+            }
+
+            // 关闭线程池并等待所有任务完成
+            executor.shutdown();
+            executor.awaitTermination(30, TimeUnit.SECONDS);
+
+            // 合并并排序结果
+            List<Word> finalResults = new ArrayList<>();
+            for (List<Word> workerResults : collectedResults.values()) {
+                finalResults.addAll(workerResults);
+            }
+            finalResults.sort(Comparator.comparingInt(Word::getOriginalIndex));
+
+            // 输出最终结果
+            StringBuilder result = new StringBuilder();
+            for (Word word : finalResults) {
+                result.append(word.getText()).append(" ");
+            }
+            System.out.println("Processed Paragraph: " + result.toString().trim());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendMessageToWorker(int workerId, List<Word> words) throws IOException {
+        try (Socket socket = new Socket("localhost", BASE_PORT + workerId);
+             OutputStream out = socket.getOutputStream()) {
             Message message = Message.newBuilder()
                     .addAllWords(words)
-                    .setSenderId(0)
                     .addAllVectorClock(toList(vectorClock))
                     .build();
-
             message.writeTo(out);
         }
+        incrementClock(0); // 主进程更新自己的 Vector Clock
     }
 
-    private static void listenForWorkerResponse(int workerId) throws IOException {
-        int port = BASE_PORT + workerId + 1000;
-        try (ServerSocket serverSocket = new ServerSocket(port);
+    private void listenForWorkerResponse(int workerId, ConcurrentMap<Integer, List<Word>> results) {
+        try (ServerSocket serverSocket = new ServerSocket(BASE_PORT + workerId + 1000);
              Socket socket = serverSocket.accept();
              InputStream in = socket.getInputStream()) {
 
             Response response = Response.parseFrom(in);
+
+            // 更新主进程的 Vector Clock
             updateClock(response.getVectorClockList());
+
+            // 存储 Worker 返回的结果
             results.put(workerId, response.getProcessedWordsList());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    private static void incrementClock(int processId) {
+    private void incrementClock(int processId) {
         vectorClock[processId]++;
     }
 
-    private static void updateClock(List<Integer> receivedClock) {
+    private void updateClock(List<Integer> receivedClock) {
         for (int i = 0; i < vectorClock.length; i++) {
             vectorClock[i] = Math.max(vectorClock[i], receivedClock.get(i));
         }
     }
 
-    private static List<Integer> toList(int[] array) {
+    private List<Integer> toList(int[] array) {
         List<Integer> list = new ArrayList<>();
         for (int value : array) {
             list.add(value);
@@ -107,3 +123,4 @@ public class Main {
         return list;
     }
 }
+

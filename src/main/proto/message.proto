@@ -2,13 +2,19 @@ syntax = "proto3";
 option java_generic_services = true;
 option java_multiple_files = true;
 option java_package = "com.distributed";
+
+
+message Word {
+  string text = 1;          // 单词的内容
+  int32 originalIndex = 2;  // 单词在原段落中的位置
+}
+
 message Message {
-  repeated string words = 1;
-  int32 senderId = 2;
-  repeated int32 vectorClock = 3;
+  repeated Word words = 1;        // 分配给 Worker 的单词
+  repeated int32 vectorClock = 2; // 主进程的 Vector Clock
 }
 
 message Response {
-  repeated string processedWords = 1;
-  repeated int32 vectorClock = 2;
+  repeated Word processedWords = 1; // Worker 处理后的单词
+  repeated int32 vectorClock = 2;   // Worker 的 Vector Clock
 }
