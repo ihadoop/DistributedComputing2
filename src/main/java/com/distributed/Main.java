@@ -56,8 +56,13 @@ public class Main {
 
             // Close the thread pool and wait for all tasks to complete
             executor.shutdown();
+            long start = System.currentTimeMillis();
             executor.awaitTermination(15, TimeUnit.SECONDS);
-
+            long end = System.currentTimeMillis();
+            long diff = (end - start)/1000;
+            if (15-diff >0 ){
+                TimeUnit.SECONDS.sleep(15-diff);
+            }
 
             // Merge and sort the results
             List<Word> finalResults = new ArrayList<>();
