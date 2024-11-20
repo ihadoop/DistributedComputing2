@@ -4,12 +4,14 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
 public class Main {
     private static final int BASE_PORT = 10000;
-    private static final int NUM_WORKERS = 5; //
-    private final int[] vectorClock = new int[NUM_WORKERS + 1];
-    private final ExecutorService executor = Executors.newFixedThreadPool(NUM_WORKERS);
+    private static final int NUM_WORKERS = 5; //  Worker
+    private final int[] vectorClock = new int[NUM_WORKERS + 1]; //
 
     public static void main(String[] args) {
         new Main().start();
@@ -20,7 +22,7 @@ public class Main {
             System.out.println("Enter a paragraph:");
             String paragraph = scanner.nextLine();
 
-            // Divide paragraphs into words
+
             List<Word> words = new ArrayList<>();
             String[] wordArray = paragraph.split(" ");
             for (int i = 0; i < wordArray.length; i++) {
@@ -30,7 +32,7 @@ public class Main {
                         .build());
             }
 
-            // Randomly assign words to Workers
+            // assign to Workers
             Map<Integer, List<Word>> tasks = new HashMap<>();
             for (int i = 0; i < NUM_WORKERS; i++) {
                 tasks.put(i, new ArrayList<>());
@@ -41,37 +43,26 @@ public class Main {
                 tasks.get(workerId).add(word);
             }
 
-            // A container for storing results
-            ConcurrentMap<Integer, List<Word>> collectedResults = new ConcurrentHashMap<>();
-
-            // 向每个 Worker 发送任务并监听其返回
+            // send task to Worker
             for (int workerId = 0; workerId < NUM_WORKERS; workerId++) {
-                List<Word> taskWords = tasks.get(workerId);
-                sendMessageToWorker(workerId, taskWords);
-
-                // Start the listening thread and wait for the Worker to return the result
-                int finalWorkerId = workerId;
-                executor.submit(() -> listenForWorkerResponse(finalWorkerId, collectedResults));
+                sendMessageToWorker(workerId, tasks.get(workerId));
             }
 
-            // Close the thread pool and wait for all tasks to complete
-            executor.shutdown();
-            long start = System.currentTimeMillis();
-            executor.awaitTermination(15, TimeUnit.SECONDS);
-            long end = System.currentTimeMillis();
-            long diff = (end - start)/1000;
-            if (15-diff >0 ){
-                TimeUnit.SECONDS.sleep(15-diff);
-            }
+            // waiting 15 seconds
+            System.out.println("Main process is waiting for 15 seconds...");
+            Thread.sleep(15000);
 
-            // Merge and sort the results
+            // collect data after 15s
+            System.out.println("Collecting results from workers...");
             List<Word> finalResults = new ArrayList<>();
-            for (List<Word> workerResults : collectedResults.values()) {
-                finalResults.addAll(workerResults);
+            for (int workerId = 0; workerId < NUM_WORKERS; workerId++) {
+                finalResults.addAll(collectFromWorker(workerId));
             }
+
+
             finalResults.sort(Comparator.comparingInt(Word::getOriginalIndex));
 
-            // Output final result
+            // print final result
             StringBuilder result = new StringBuilder();
             for (Word word : finalResults) {
                 result.append(word.getText()).append(" ");
@@ -82,7 +73,7 @@ public class Main {
         }
     }
 
-    private void sendMessageToWorker(int workerId, List<Word> words) throws IOException {
+    private void sendMessageToWorker(int workerId, List<Word> words) {
         try (Socket socket = new Socket("localhost", BASE_PORT + workerId);
              OutputStream out = socket.getOutputStream()) {
             Message message = Message.newBuilder()
@@ -90,25 +81,29 @@ public class Main {
                     .addAllVectorClock(toList(vectorClock))
                     .build();
             message.writeTo(out);
+        } catch (IOException e) {
+            System.err.println("Failed to send task to Worker " + workerId);
+            e.printStackTrace();
         }
-        incrementClock(0); // The main process updates its own Vector Clock
+        incrementClock(0); // update Vector Clock
     }
 
-    private void listenForWorkerResponse(int workerId, ConcurrentMap<Integer, List<Word>> results) {
-        try (ServerSocket serverSocket = new ServerSocket(BASE_PORT + workerId + 1000);
-             Socket socket = serverSocket.accept();
+    private List<Word> collectFromWorker(int workerId) {
+        try (Socket socket = new Socket("localhost", BASE_PORT + workerId + 1000);
              InputStream in = socket.getInputStream()) {
 
             Response response = Response.parseFrom(in);
-
-            // update main process Vector Clock
+            System.out.println("Success to collect result from Worker " + workerId);
+            // update Vector Clock
             updateClock(response.getVectorClockList());
 
-            // store Worker response data
-            results.put(workerId, response.getProcessedWordsList());
+
+            return response.getProcessedWordsList();
         } catch (IOException e) {
+            System.err.println("Failed to collect result from Worker " + workerId);
             e.printStackTrace();
         }
+        return Collections.emptyList();
     }
 
     private void incrementClock(int processId) {
@@ -129,4 +124,5 @@ public class Main {
         return list;
     }
 }
+
 
