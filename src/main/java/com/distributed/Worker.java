@@ -3,58 +3,86 @@ package com.distributed;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
 public class Worker {
     private final int workerId;
+    private final int basePort;
     private final int[] vectorClock;
 
-    public Worker(int workerId, int numProcesses) {
+    public Worker(int workerId, int numWorkers) {
         this.workerId = workerId;
-        this.vectorClock = new int[numProcesses + 1];
+        this.basePort = 10000 + workerId;
+        this.vectorClock = new int[numWorkers + 1];
     }
 
-    public void start() throws IOException {
-        try (ServerSocket serverSocket = new ServerSocket(10000 + workerId)) {
-            System.out.println("Worker " + workerId + " started on port " + (10000 + workerId));
+    public static void main(String[] args) {
+
+        int numWorkers = 5;
+
+
+        int workerId = 1;
+        new Worker(workerId, numWorkers).start();
+
+
+        /**
+        for (int i = 0; i < numWorkers; i++) {
+            final int workerId = i;
+            new Thread(()->{
+                new Worker(workerId, numWorkers).start();
+            }).start();
+
+        }
+         */
+
+    }
+
+    public void start() {
+        try (ServerSocket serverSocket = new ServerSocket(basePort)) {
+            System.out.println("Worker " + workerId + " started on port " + basePort);
+
             while (true) {
                 try (Socket socket = serverSocket.accept();
-                     InputStream in = socket.getInputStream()) {
+                     InputStream in = socket.getInputStream();
+                     OutputStream out = socket.getOutputStream()) {
 
-                    // Receives tasks from the main process
+                    // receive task
                     Message message = Message.parseFrom(in);
-
+                    System.out.println("WorkId "+workerId+",Received message from main: " + message.getWordsList());
                     // update Vector Clock
                     updateClock(message.getVectorClockList());
-
-                    // handle task
-                    List<Word> processedWords = processWords(message.getWordsList());
-
-                    // add Vector Clock
                     incrementClock(workerId);
 
-                    // handle response data
-                    try (Socket responseSocket = new Socket("localhost", 10000 + workerId + 1000);
-                         OutputStream out = responseSocket.getOutputStream()) {
-                        Response response = Response.newBuilder()
-                                .addAllProcessedWords(processedWords)
-                                .addAllVectorClock(toList(vectorClock))
-                                .build();
-                        response.writeTo(out);
+                    // handler task
+                    List<Word> processedWords = new ArrayList<>();
+                    for (Word word : message.getWordsList()) {
+                        String processedText = word.getText().toUpperCase(); // 模拟处理逻辑
+                        processedWords.add(word.toBuilder().setText(processedText).build());
                     }
+
+                    // wait Main
+                    ServerSocket resultServer = new ServerSocket(basePort + 1000);
+                    Socket resultSocket = resultServer.accept();
+
+                    // send result data
+                    Response response = Response.newBuilder()
+                            .addAllProcessedWords(processedWords)
+                            .addAllVectorClock(toList(vectorClock))
+                            .build();
+                    response.writeTo(resultSocket.getOutputStream());
+                    resultSocket.close();
+                    resultServer.close();
                 }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    private List<Word> processWords(List<Word> words) {
-        List<Word> processedWords = new ArrayList<>();
-        for (Word word : words) {
-            processedWords.add(Word.newBuilder()
-                    .setText(word.getText().toUpperCase()) // change to upper case
-                    .setOriginalIndex(word.getOriginalIndex())
-                    .build());
-        }
-        return processedWords;
+    private void incrementClock(int processId) {
+        vectorClock[processId]++;
     }
 
     private void updateClock(List<Integer> receivedClock) {
@@ -63,26 +91,11 @@ public class Worker {
         }
     }
 
-    private void incrementClock(int processId) {
-        vectorClock[processId]++;
-    }
-
     private List<Integer> toList(int[] array) {
         List<Integer> list = new ArrayList<>();
         for (int value : array) {
             list.add(value);
         }
         return list;
-    }
-
-    public static void main(String[] args) {
-        int numProcess = 5;
-        int workerId = 4;
-        Worker worker = new Worker(workerId, numProcess); //
-        try {
-            worker.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
