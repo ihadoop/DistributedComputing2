@@ -7,116 +7,139 @@ import java.util.concurrent.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+
+
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.util.concurrent.*;
+
+
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.util.concurrent.*;
 
 public class Main {
-    private static final int BASE_PORT = 10000;
-    private static final int NUM_WORKERS = 5; //  Worker
-    private final int[] vectorClock = new int[NUM_WORKERS + 1]; //
+    private static final int NUM_WORKERS = 5; // Total number of workers
+    private final int[] vectorClock = new int[NUM_WORKERS]; // Main's vector clock
 
     public static void main(String[] args) {
-        new Main().start();
+        Main main = new Main();
+        main.run();
     }
 
-    public void start() {
-        try (Scanner scanner = new Scanner(System.in)) {
+    public void run() {
+        try {
+            Scanner scanner = new Scanner(System.in);
             System.out.println("Enter a paragraph:");
             String paragraph = scanner.nextLine();
 
+            // Split paragraph into words
+            String[] words = paragraph.split("\\s+");
+            List<List<Word>> wordBatches = distributeWords(words);
 
-            List<Word> words = new ArrayList<>();
-            String[] wordArray = paragraph.split(" ");
-            for (int i = 0; i < wordArray.length; i++) {
-                words.add(Word.newBuilder()
-                        .setText(wordArray[i])
-                        .setOriginalIndex(i)
-                        .build());
-            }
-
-            // assign to Workers
-            Map<Integer, List<Word>> tasks = new HashMap<>();
+            // Send words to workers
+            ExecutorService executor = Executors.newFixedThreadPool(NUM_WORKERS);
+            List<Socket> workerSockets = new ArrayList<>();
             for (int i = 0; i < NUM_WORKERS; i++) {
-                tasks.put(i, new ArrayList<>());
+                int workerId = i;
+                executor.submit(() -> {
+                    try {
+                        Socket socket = new Socket("localhost", 10000 + workerId);
+                        synchronized (workerSockets) {
+                            workerSockets.add(socket); // Keep socket open for later communication
+                        }
+                        ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+                        incrementClock(0); // Increment Main's clock
+                        output.writeObject(wordBatches.get(workerId)); // Send batch to the worker
+                        output.writeObject(convertArrayToList(vectorClock));
+                        output.flush();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
             }
-            Random random = new Random();
-            for (Word word : words) {
-                int workerId = random.nextInt(NUM_WORKERS);
-                tasks.get(workerId).add(word);
-            }
+            executor.shutdown();
+            executor.awaitTermination(5, TimeUnit.SECONDS);
 
-            // send task to Worker
-            for (int workerId = 0; workerId < NUM_WORKERS; workerId++) {
-                sendMessageToWorker(workerId, tasks.get(workerId));
-            }
-
-            // waiting 15 seconds
-            System.out.println("Main process is waiting for 15 seconds...");
+            // Wait 15 seconds before collecting results
+            System.out.println("Waiting 15 seconds before collecting results...");
             Thread.sleep(15000);
 
-            // collect data after 15s
-            System.out.println("Collecting results from workers...");
-            List<Word> finalResults = new ArrayList<>();
-            for (int workerId = 0; workerId < NUM_WORKERS; workerId++) {
-                finalResults.addAll(collectFromWorker(workerId));
+            // Collect results from workers
+            List<Word> collectedResults = new ArrayList<>();
+            for (int i = 0; i < NUM_WORKERS; i++) {
+                try (Socket socket = workerSockets.get(i);
+                     ObjectInputStream input = new ObjectInputStream(socket.getInputStream())) {
+
+                    @SuppressWarnings("unchecked")
+                    List<Word> processedWords = (List<Word>) input.readObject();
+                    collectedResults.addAll(processedWords);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
+            // Sort results by position (original order), and use vector clock as secondary criterion
+            collectedResults.sort((word1, word2) -> {
+                // Sort primarily by original position
+                int posComparison = Integer.compare(word1.getPosition(), word2.getPosition());
+                if (posComparison != 0) {
+                    return posComparison;
+                }
 
-            finalResults.sort(Comparator.comparingInt(Word::getOriginalIndex));
+                // If positions are the same, sort by vector clock for causality
+                List<Integer> clock1 = word1.getVectorClockList();
+                List<Integer> clock2 = word2.getVectorClockList();
+                for (int i = 0; i < Math.min(clock1.size(), clock2.size()); i++) {
+                    int cmp = Integer.compare(clock1.get(i), clock2.get(i));
+                    if (cmp != 0) {
+                        return cmp;
+                    }
+                }
+                return 0;
+            });
 
-            // print final result
-            StringBuilder result = new StringBuilder();
-            for (Word word : finalResults) {
-                result.append(word.getText()).append(" ");
-            }
-            System.out.println("Processed Paragraph: " + result.toString().trim());
+            // Print the final results
+            System.out.println("Collected results:");
+            collectedResults.forEach(word -> System.out.print(word.getText() + " "));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void sendMessageToWorker(int workerId, List<Word> words) {
-        try (Socket socket = new Socket("localhost", BASE_PORT + workerId);
-             OutputStream out = socket.getOutputStream()) {
-            Message message = Message.newBuilder()
-                    .addAllWords(words)
-                    .addAllVectorClock(toList(vectorClock))
-                    .build();
-            message.writeTo(out);
-        } catch (IOException e) {
-            System.err.println("Failed to send task to Worker " + workerId);
-            e.printStackTrace();
+    private List<List<Word>> distributeWords(String[] words) {
+        List<List<Word>> batches = new ArrayList<>();
+        for (int i = 0; i < NUM_WORKERS; i++) {
+            batches.add(new ArrayList<>());
         }
-        incrementClock(0); // update Vector Clock
-    }
 
-    private List<Word> collectFromWorker(int workerId) {
-        try (Socket socket = new Socket("localhost", BASE_PORT + workerId + 1000);
-             InputStream in = socket.getInputStream()) {
-
-            Response response = Response.parseFrom(in);
-            System.out.println("Success to collect result from Worker " + workerId);
-            // update Vector Clock
-            updateClock(response.getVectorClockList());
-
-
-            return response.getProcessedWordsList();
-        } catch (IOException e) {
-            System.err.println("Failed to collect result from Worker " + workerId);
-            e.printStackTrace();
+        Random random = new Random();
+        for (int i = 0; i < words.length; i++) {
+            int workerId = random.nextInt(NUM_WORKERS); // Randomly assign a word to a worker
+            batches.get(workerId).add(Word.newBuilder()
+                    .setText(words[i])
+                    .addAllVectorClock(convertArrayToList(vectorClock))
+                    .setPosition(i) // Preserve the original position
+                    .build());
         }
-        return Collections.emptyList();
+        return batches;
     }
 
     private void incrementClock(int processId) {
         vectorClock[processId]++;
     }
 
-    private void updateClock(List<Integer> receivedClock) {
-        for (int i = 0; i < vectorClock.length; i++) {
-            vectorClock[i] = Math.max(vectorClock[i], receivedClock.get(i));
-        }
-    }
-
-    private List<Integer> toList(int[] array) {
+    private List<Integer> convertArrayToList(int[] array) {
         List<Integer> list = new ArrayList<>();
         for (int value : array) {
             list.add(value);
@@ -124,5 +147,3 @@ public class Main {
         return list;
     }
 }
-
-

@@ -6,15 +6,11 @@ option java_package = "com.distributed";
 
 message Word {
   string text = 1;
-  int32 originalIndex = 2;
+  repeated int32 vectorClock = 2;
+  int32 position = 3;
 }
 
-message Message {
-  repeated Word words = 1;
-  repeated int32 vectorClock = 2;
-}
-
-message Response {
-  repeated Word processedWords = 1;
-  repeated int32 vectorClock = 2;
+message MessageWithTimestamp {
+  repeated Word words = 1;     // List of processed words
+  repeated int32 vectorClock = 2; // Associated vector clock
 }
