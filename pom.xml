@@ -2,7 +2,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <!-- 1. 模型版本 -->
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.distributed</groupId>
@@ -32,7 +32,6 @@
             <version>1.29.0</version>
         </dependency>
         <!-- necessary for Java 9+ -->
-        <!--java 低于 1.8 的版本不需要此依赖-->
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>annotations-api</artifactId>
