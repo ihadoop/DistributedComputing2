@@ -141,12 +141,12 @@ public class Worker {
     public static void main(String[] args) {
 
 
-       int workerId = 4;
+       //int workerId = 4;
         int numProcesses = 5;
 
-        Worker worker = new Worker(workerId, numProcesses);
-        worker.start();
-/**
+   //     Worker worker = new Worker(workerId, numProcesses);
+    //    worker.start();
+
         for (int i = 0; i < numProcesses; i++) {
             final int workerId = i;
             new Thread(()->{
@@ -154,6 +154,6 @@ public class Worker {
                 worker.start();
             }).start();
         }
-*/
+
     }
 }
