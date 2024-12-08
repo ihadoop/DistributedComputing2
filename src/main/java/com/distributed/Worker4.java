@@ -1,24 +1,21 @@
 package com.distributed;
 
-import org.zeromq.ZMQ;
-
 import java.nio.ByteBuffer;
-import java.util.*;
 
-public class Worker {
+public class Worker4 {
 
     private final int workerId;
     private int lamportClock = 0;  // Lamport clock for this worker
     private int times = 0;
 
-    public Worker(int workerId) {
+    public Worker4(int workerId) {
         this.workerId = workerId;
     }
 
     public static void main(String[] args) {
 
-        final int workerId = 4;  // Worker ID passed as a command-line argument
-        Worker worker = new Worker(workerId);
+        final int workerId = 3;  // Worker ID passed as a command-line argument
+        Worker4 worker = new Worker4(workerId);
         worker.run();
 
     }
@@ -37,7 +34,7 @@ public class Worker {
             byte[] chunk = new byte[buffer.remaining()];
             buffer.get(chunk);  // Get the chunk of data
 
-            System.out.println("Receive Message");
+            System.out.println("Receive Message  from WorkerId3");
             push.send(serializeChunk(chunk,lamportClock));
         }
     }

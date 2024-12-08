@@ -44,7 +44,7 @@ public class Main {
 
                 CountDownLatch latch = new CountDownLatch(1);
                 new Thread(() -> {
-                    Pull pull = new Pull(8888+workerId);
+                    Pull pull = new Pull(9999);
                     latch.countDown();
                     while (true) {
                         byte[] result =  pull.run();  // Receive processed chunk from worker
