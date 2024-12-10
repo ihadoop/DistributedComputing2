@@ -1,6 +1,6 @@
 package com.distributed;
 
-import java.nio.ByteBuffer;
+
 
 public class Worker3 {
 
@@ -27,26 +27,24 @@ public class Worker3 {
         while (true) {
 
             byte[] message = pull.run();
-            ByteBuffer buffer = ByteBuffer.wrap(message);
+            ByteArrayBuffer buffer = new ByteArrayBuffer(message);
             int receivedClock = buffer.getInt();
             lamportClock = Math.max(lamportClock, receivedClock) + 1;
 
             byte[] chunk = new byte[buffer.remaining()];
-            buffer.get(chunk);  // Get the chunk of data
+            chunk = buffer.getRemainingBytes();
 
             System.out.println("Receive Message  from WorkerId2");
             push.send(serializeChunk(chunk,lamportClock));
         }
     }
 
-    // Serialize the chunk and attach the Lamport clock value
     private byte[] serializeChunk(byte[] chunk, int lamportClock) {
-        ByteBuffer buffer = ByteBuffer.allocate(chunk.length + Integer.BYTES);
+        ByteArrayBuffer buffer = new ByteArrayBuffer(chunk.length + Integer.BYTES);
         buffer.putInt(lamportClock);  // Add Lamport clock (4 bytes)
         buffer.put(chunk);  // Add the chunk
-        return buffer.array();
+        return buffer.getArray();
     }
-
     // Process the chunk of data (for now, we convert it to uppercase)
     private String processChunk(byte[] chunk) {
         // For example: just convert the bytes to uppercase
